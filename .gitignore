@@ -62,3 +62,9 @@ yarn-error.log
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*
 msbuild.binlog
+.env
+.vs/2023-hacknroll/v16/.suo
+.vs/slnx.sqlite
+.vs/ProjectSettings.json
+.vs/VSWorkspaceState.json
+.vs/2023-hacknroll/v16/Browse.VC.db

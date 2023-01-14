@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import MapView from 'react-native-maps';
-import { View, StyleSheet, PermissionsAndroid, Platform } from 'react-native';
-import { PROVIDER_GOOGLE } from 'react-native-maps/lib/ProviderConstants';
+import {
+  Button,
+  PermissionsAndroid,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  View,
+  useColorScheme,
+} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+import MapView from 'react-native-maps';
+import { PROVIDER_GOOGLE } from 'react-native-maps/lib/ProviderConstants';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const getCurrentPosition = (
   handlePosition: (pos: Geolocation.GeoPosition) => void,
@@ -55,14 +65,18 @@ interface Location {
   longitudeDelta: number;
 }
 
-const Temp = () => {
+const Homepage = ({ navigation }: { navigation: any }) => {
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
   const [location, setLocation] = useState<Location>({
     latitude: 1.30457,
     longitude: 103.772392,
     latitudeDelta: 0.001,
     longitudeDelta: 0.001,
   });
-
   useEffect(() => {
     // TODO: add check for iOS
     PermissionsAndroid.check(
@@ -97,25 +111,42 @@ const Temp = () => {
   console.log({ location });
 
   return (
-    <View style={styles.container}>
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={location}
-      />
-    </View>
+    <SafeAreaView
+      style={{
+        ...backgroundStyle,
+        flex: 1,
+      }}>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={backgroundStyle}>
+        <View style={styles.container}>
+          <MapView
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            initialRegion={{
+              latitude: 37.78825,
+              longitude: -122.4324,
+              latitudeDelta: 0.015,
+              longitudeDelta: 0.0121,
+            }}
+          />
+        </View>
+        <Button
+          title="Go to Plan Trip"
+          onPress={() => navigation.navigate('PlanTrip')}
+        />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    height: '100%',
-    width: '100%',
+    height: 400,
+    width: 400,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
+  map: {},
 });
 
-export default Temp;
+export default Homepage;

@@ -1,39 +1,25 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import Homepage from './src/app/components/Homepage';
+import PlanTrip from './src/app/components/PlanTrip';
+// for navigation between screens
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { Colors, Header } from 'react-native/Libraries/NewAppScreen';
-import Temp from './src/app/components/Temp';
+type StackParamList = {
+  Homepage: undefined;
+  PlanTrip: undefined;
+};
+
+const Stack = createNativeStackNavigator<StackParamList>();
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View style={backgroundStyle}>
-          <Text>hello world</Text>
-        </View>
-        <Temp />
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Homepage">
+        <Stack.Screen name="Homepage" component={Homepage} />
+        <Stack.Screen name="PlanTrip" component={PlanTrip} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
