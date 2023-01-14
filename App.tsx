@@ -24,9 +24,21 @@ const App = () => {
     <>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Homepage">
-          <Stack.Screen name="Homepage" component={Homepage} />
-          <Stack.Screen name="CreateRoute" component={CreateRoute} />
-          <Stack.Screen name="PriceComparison" component={PriceComparison} />
+          <Stack.Screen
+            name="Homepage"
+            component={Homepage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CreateRoute"
+            component={CreateRoute}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PriceComparison"
+            component={PriceComparison}
+            options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </>
