@@ -1,18 +1,17 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import {
   Button,
   PermissionsAndroid,
   Platform,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   View,
   useColorScheme,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import MapView from 'react-native-maps';
-import { PROVIDER_GOOGLE } from 'react-native-maps/lib/ProviderConstants';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { StackParamList } from '../../../App';
 
 const getCurrentPosition = (
   handlePosition: (pos: Geolocation.GeoPosition) => void,
@@ -65,7 +64,9 @@ interface Location {
   longitudeDelta: number;
 }
 
-const Homepage = ({ navigation }: { navigation: any }) => {
+const Homepage = ({
+  navigation,
+}: NativeStackScreenProps<StackParamList, 'Homepage'>) => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -111,38 +112,43 @@ const Homepage = ({ navigation }: { navigation: any }) => {
   console.log({ location });
 
   return (
-    <SafeAreaView
-      style={{
-        ...backgroundStyle,
-        flex: 1,
-      }}>
-      <ScrollView
+    <SafeAreaView style={backgroundStyle}>
+      {/* <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View style={styles.container}>
-          <MapView
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            initialRegion={{
-              latitude: 37.78825,
-              longitude: -122.4324,
-              latitudeDelta: 0.015,
-              longitudeDelta: 0.0121,
-            }}
-          />
-        </View>
-        <Button
-          title="Go to Plan Trip"
-          onPress={() => navigation.navigate('PlanTrip')}
-        />
-      </ScrollView>
+        style={{ ...backgroundStyle, ...styles.container }}> */}
+      <View style={styles.container}>
+        {/* <MapView
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          initialRegion={{
+            latitude: 37.78825,
+            longitude: -122.4324,
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.0121,
+          }}
+        /> */}
+      </View>
+      <Button
+        title="Proceed to plan route!"
+        onPress={() =>
+          navigation.navigate('CreateRoute', {
+            from: {
+              latitude: location.latitude,
+              longitude: location.longitude,
+            },
+          })
+        }
+      />
+      {/* </ScrollView> */}
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     height: 400,
     width: 400,
+    minHeight: 100,
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
