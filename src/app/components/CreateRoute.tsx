@@ -58,7 +58,7 @@ export default function CreateRoute({
   // Checks whether valid starting and ending locations are added
   // otherwise prompts error to user when user tries to submit
   const checkValid = () => {
-    if (toCoords === undefined) {
+    if (toCoords === undefined || toRef.current?.getAddressText() === '') {
       showError('Please enter valid starting/ending locations');
       return false;
     }
