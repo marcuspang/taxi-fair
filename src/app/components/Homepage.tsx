@@ -88,6 +88,7 @@ const Homepage = ({
   const locationRef = useRef<GooglePlacesAutocompleteRef>(null);
 
   useEffect(() => {
+    locationRef.current?.setAddressText('Current Location');
     // check location permissions
     // TODO: add check for iOS
     PermissionsAndroid.check(
@@ -200,7 +201,7 @@ const stylesWithColourMode = (isDarkMode: boolean) =>
     mapContainer: {
       ...StyleSheet.absoluteFillObject,
       height: Dimensions.get('window').height,
-      width: 400,
+      width: Dimensions.get('window').width,
       minHeight: 100,
       justifyContent: 'flex-end',
       alignItems: 'center',

@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import Config from 'react-native-config';
 import {
   GooglePlaceData,
@@ -9,6 +9,7 @@ import {
   GooglePlacesAutocompleteRef,
 } from 'react-native-google-places-autocomplete';
 import { LatLng } from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackParamList } from '../../../App';
 import CustomButton from './CustomButton';
 import Icon from './Icon';
@@ -57,7 +58,7 @@ export default function CreateRoute({
   // Checks whether valid starting and ending locations are added
   // otherwise prompts error to user when user tries to submit
   const checkValid = () => {
-    if (toCoords !== undefined) {
+    if (toCoords === undefined) {
       showError('Please enter valid starting/ending locations');
       return false;
     }
@@ -67,6 +68,7 @@ export default function CreateRoute({
   const onDone = () => {
     const isValid = checkValid();
     if (isValid) {
+      Keyboard.dismiss();
       navigation.navigate('PriceComparison', {
         from: {
           ...fromCoords,
@@ -78,19 +80,20 @@ export default function CreateRoute({
           ...toCoords!,
           name:
             toRef.current?.getAddressText() ||
-            `${toCoords?.latitude}, ${toCoords?.longitude}`,
+            `${toCoords!.latitude}, ${toCoords!.longitude}`,
         },
       });
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Enter your starting and ending locations</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.heading}>Enter your destination below!</Text>
       {/* Can make into component */}
+      <Text>Source</Text>
       <GooglePlacesAutocomplete
         ref={fromRef}
-        placeholder={'Source'} // to add the correct prefilled location name
+        placeholder="Source" // to add the correct prefilled location name
         query={{
           key: Config.GOOGLE_PLACES_API_KEY,
           language: 'en',
@@ -99,6 +102,7 @@ export default function CreateRoute({
         fetchDetails
         styles={{ textInput: styles.textInput }}
       />
+      <Text>Destination</Text>
       <GooglePlacesAutocomplete
         ref={toRef}
         placeholder="Destination"
@@ -110,31 +114,30 @@ export default function CreateRoute({
         fetchDetails
         styles={{ textInput: styles.textInput }}
       />
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-        }}>
+      <View style={styles.buttonContainer}>
         <CustomButton
           buttonText="Go back"
-          buttonStyles={{
-            paddingRight: 8,
-          }}
+          buttonStyles={styles.button}
           onPress={() => navigation.goBack()}
         />
         <CustomButton
           buttonText="Check price "
-          onPress={onDone}
-          buttonStyles={{ paddingLeft: 8 }}
+          buttonStyles={styles.button}
           Icon={<Icon size={12} icon="arrow-right2" color="white" />}
+          onPress={onDone}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  heading: {
+    fontSize: 22,
+    fontWeight: '600',
+    marginBottom: 20,
+    color: 'black',
+  },
   textInput: {
     backgroundColor: '#E5E6FF',
     borderRadius: 10,
@@ -147,5 +150,16 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     paddingTop: 24,
     paddingBottom: 24,
+    flex: 1,
+  },
+  button: {
+    marginRight: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
 });
