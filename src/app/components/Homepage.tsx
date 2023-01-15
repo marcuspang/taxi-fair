@@ -4,10 +4,8 @@ import {
   Dimensions,
   PermissionsAndroid,
   Platform,
-  Pressable,
   SafeAreaView,
   StyleSheet,
-  Text,
   View,
   useColorScheme,
 } from 'react-native';
@@ -20,7 +18,8 @@ import {
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { StackParamList } from '../../../App';
-import { Location } from '../hooks/useLocations';
+import { LatLngWithDelta } from '../hooks/useLocations';
+import CustomButton from './CustomButton';
 import Icon from './Icon';
 
 /**
@@ -70,7 +69,7 @@ const requestForLocationPermission = async (retry?: boolean) => {
   }
 };
 
-const DEFAULT_LOCATION_COORDS: Location = {
+const DEFAULT_LOCATION_COORDS: LatLngWithDelta = {
   latitude: 1.3052,
   longitude: 103.7739,
   latitudeDelta: 0.001,
@@ -83,7 +82,9 @@ const Homepage = ({
   const isDarkMode = useColorScheme() === 'dark';
   const styles = stylesWithColourMode(isDarkMode);
 
-  const [location, setLocation] = useState<Location>(DEFAULT_LOCATION_COORDS);
+  const [location, setLocation] = useState<LatLngWithDelta>(
+    DEFAULT_LOCATION_COORDS,
+  );
   const locationRef = useRef<GooglePlacesAutocompleteRef>(null);
 
   useEffect(() => {
@@ -163,24 +164,25 @@ const Homepage = ({
             }
           }}
           fetchDetails
+          styles={{ textInput: styles.textInput }}
         />
-        <Pressable
+        <CustomButton
           onPress={() =>
             navigation.navigate('CreateRoute', {
               from: {
+                name:
+                  locationRef.current?.getAddressText() ||
+                  `${location.latitude}, ${location.longitude}`,
                 latitude: location.latitude,
                 longitude: location.longitude,
               },
             })
           }
-          style={styles.button}>
-          <View>
-            <Text style={styles.buttonText}>
-              Select your destination!{' '}
-              <Icon size={14} icon="arrow-right2" color="white" />
-            </Text>
-          </View>
-        </Pressable>
+          buttonStyles={styles.button}
+          buttonTextStyles={styles.buttonText}
+          buttonText={'Select your destination '}
+          Icon={<Icon size={12} icon="arrow-right2" color="white" />}
+        />
       </View>
     </SafeAreaView>
   );
@@ -224,6 +226,10 @@ const stylesWithColourMode = (isDarkMode: boolean) =>
       borderRadius: 10,
     },
     buttonText: { color: 'white', fontWeight: '600' },
+    textInput: {
+      backgroundColor: '#E5E6FF',
+      borderRadius: 10,
+    },
   });
 
 export default Homepage;

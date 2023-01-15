@@ -6,14 +6,14 @@ import PriceComparison from './src/app/components/PriceComparison';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import 'react-native-gesture-handler';
-import { LatLng } from 'react-native-maps';
+import { LatLngWithName } from './src/app/hooks/useLocations';
 
 export type StackParamList = {
   Homepage: undefined;
-  CreateRoute: { from: LatLng };
+  CreateRoute: { from: LatLngWithName };
   PriceComparison: {
-    from: LatLng;
-    to: LatLng;
+    from: LatLngWithName;
+    to: LatLngWithName;
   };
 };
 
@@ -22,9 +22,7 @@ const Stack = createNativeStackNavigator<StackParamList>();
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Homepage"
-        screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Homepage" component={Homepage} />
         <Stack.Screen name="CreateRoute" component={CreateRoute} />
         <Stack.Screen name="PriceComparison" component={PriceComparison} />

@@ -1,45 +1,40 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Config from 'react-native-config';
 import {
   GooglePlaceData,
   GooglePlaceDetail,
   GooglePlacesAutocomplete,
+  GooglePlacesAutocompleteRef,
 } from 'react-native-google-places-autocomplete';
 import { LatLng } from 'react-native-maps';
 import { StackParamList } from '../../../App';
+import CustomButton from './CustomButton';
+import Icon from './Icon';
 import { showError } from './others/helper-functions';
-
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    height: '100%',
-    width: '100%',
-  },
-});
 
 // pass on the navigation variables so that can allow backward navigation
 export default function CreateRoute({
   route,
   navigation,
 }: NativeStackScreenProps<StackParamList, 'CreateRoute'>) {
-  const { from } = route.params;
+  const { from } = route.params || {};
 
-  const [fromCoords, setFromCoords] = useState<LatLng>(from);
+  const [fromCoords, setFromCoords] = useState<LatLng>(from || {});
   const [toCoords, setToCoords] = useState<LatLng>();
 
-  const ref = useRef();
+  const fromRef = useRef<GooglePlacesAutocompleteRef>(null);
+  const toRef = useRef<GooglePlacesAutocompleteRef>(null);
+
   useEffect(() => {
-    // @ts-ignore
-    ref.current?.setAddressText('Utown');
-  }, []);
+    fromRef.current?.setAddressText(from.name);
+  }, [from.name]);
 
   const updateFromCoords = (
     data: GooglePlaceData,
     detail: GooglePlaceDetail | null,
   ) => {
-    console.log({ data, detail });
     // updates from coords if the lat/long values exist, otherwise don't update
     setFromCoords(prev => ({
       latitude: detail ? detail.geometry.location.lat : prev.latitude,
@@ -51,7 +46,6 @@ export default function CreateRoute({
     data: GooglePlaceData,
     detail: GooglePlaceDetail | null,
   ) => {
-    console.log({ data, detail });
     if (detail !== null) {
       setToCoords({
         latitude: detail.geometry.location.lat,
@@ -74,36 +68,84 @@ export default function CreateRoute({
     const isValid = checkValid();
     if (isValid) {
       navigation.navigate('PriceComparison', {
-        from: fromCoords,
-        to: toCoords!,
+        from: {
+          ...fromCoords,
+          name:
+            fromRef.current?.getAddressText() ||
+            `${(from.latitude, from.longitude)}`,
+        },
+        to: {
+          ...toCoords!,
+          name:
+            toRef.current?.getAddressText() ||
+            `${toCoords?.latitude}, ${toCoords?.longitude}`,
+        },
       });
     }
   };
 
   return (
     <View style={styles.container}>
-      <Button title="Back" onPress={() => navigation.goBack()} />
       <Text>Enter your starting and ending locations</Text>
       {/* Can make into component */}
       <GooglePlacesAutocomplete
-        placeholder="asda" // to add the correct prefilled location name
+        ref={fromRef}
+        placeholder={'Source'} // to add the correct prefilled location name
         query={{
           key: Config.GOOGLE_PLACES_API_KEY,
           language: 'en',
         }}
-        // listEmptyComponent={() => <Text>No results were found</Text>}
         onPress={updateFromCoords}
+        fetchDetails
+        styles={{ textInput: styles.textInput }}
       />
       <GooglePlacesAutocomplete
+        ref={toRef}
         placeholder="Destination"
         query={{
           key: Config.GOOGLE_PLACES_API_KEY,
           language: 'en',
         }}
-        // listEmptyComponent={() => <Text>No results were found</Text>}
         onPress={updateToCoords}
+        fetchDetails
+        styles={{ textInput: styles.textInput }}
       />
-      <Button title="Check price!" onPress={onDone} />
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+        }}>
+        <CustomButton
+          buttonText="Go back"
+          buttonStyles={{
+            paddingRight: 8,
+          }}
+          onPress={() => navigation.goBack()}
+        />
+        <CustomButton
+          buttonText="Check price "
+          onPress={onDone}
+          buttonStyles={{ paddingLeft: 8 }}
+          Icon={<Icon size={12} icon="arrow-right2" color="white" />}
+        />
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  textInput: {
+    backgroundColor: '#E5E6FF',
+    borderRadius: 10,
+  },
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    height: '100%',
+    width: '100%',
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 24,
+    paddingBottom: 24,
+  },
+});

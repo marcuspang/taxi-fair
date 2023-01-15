@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
-export interface Location {
+export interface LatLngWithDelta {
   latitude: number;
   longitude: number;
   latitudeDelta: number;
   longitudeDelta: number;
+}
+
+export interface LatLngWithName {
+  latitude: number;
+  longitude: number;
+  name: string;
 }
 
 export interface LocationData {
