@@ -1,6 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import Config from 'react-native-config';
 import {
   GooglePlaceData,
   GooglePlaceDetail,
@@ -28,10 +29,17 @@ export default function CreateRoute({
   const [fromCoords, setFromCoords] = useState<LatLng>(from);
   const [toCoords, setToCoords] = useState<LatLng>();
 
+  const ref = useRef();
+  useEffect(() => {
+    // @ts-ignore
+    ref.current?.setAddressText('Utown');
+  }, []);
+
   const updateFromCoords = (
     data: GooglePlaceData,
     detail: GooglePlaceDetail | null,
   ) => {
+    console.log({ data, detail });
     // updates from coords if the lat/long values exist, otherwise don't update
     setFromCoords(prev => ({
       latitude: detail ? detail.geometry.location.lat : prev.latitude,
@@ -43,6 +51,7 @@ export default function CreateRoute({
     data: GooglePlaceData,
     detail: GooglePlaceDetail | null,
   ) => {
+    console.log({ data, detail });
     if (detail !== null) {
       setToCoords({
         latitude: detail.geometry.location.lat,
@@ -79,7 +88,7 @@ export default function CreateRoute({
       <GooglePlacesAutocomplete
         placeholder="asda" // to add the correct prefilled location name
         query={{
-          key: process.env.GOOGLE_PLACES_API_KEY,
+          key: Config.GOOGLE_PLACES_API_KEY,
           language: 'en',
         }}
         // listEmptyComponent={() => <Text>No results were found</Text>}
@@ -88,7 +97,7 @@ export default function CreateRoute({
       <GooglePlacesAutocomplete
         placeholder="Destination"
         query={{
-          key: process.env.GOOGLE_PLACES_API_KEY,
+          key: Config.GOOGLE_PLACES_API_KEY,
           language: 'en',
         }}
         // listEmptyComponent={() => <Text>No results were found</Text>}

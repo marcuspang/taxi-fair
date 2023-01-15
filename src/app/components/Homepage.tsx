@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   PermissionsAndroid,
@@ -8,16 +8,19 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TouchableHighlight,
   View,
   useColorScheme,
 } from 'react-native';
+import Config from 'react-native-config';
 import Geolocation from 'react-native-geolocation-service';
-import { FlatList, TextInput } from 'react-native-gesture-handler';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import {
+  GooglePlacesAutocomplete,
+  GooglePlacesAutocompleteRef,
+} from 'react-native-google-places-autocomplete';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { StackParamList } from '../../../App';
-import useLocations, { Location } from '../hooks/useLocations';
+import { Location } from '../hooks/useLocations';
 import Icon from './Icon';
 
 /**
@@ -67,12 +70,11 @@ const requestForLocationPermission = async (retry?: boolean) => {
   }
 };
 
-const DEFAULT_LOCATION = 'Current Location';
 const DEFAULT_LOCATION_COORDS: Location = {
   latitude: 1.3052,
   longitude: 103.7739,
-  latitudeDelta: 0.015,
-  longitudeDelta: 0.0121,
+  latitudeDelta: 0.001,
+  longitudeDelta: 0.001,
 };
 
 const Homepage = ({
@@ -82,11 +84,10 @@ const Homepage = ({
   const styles = stylesWithColourMode(isDarkMode);
 
   const [location, setLocation] = useState<Location>(DEFAULT_LOCATION_COORDS);
-  const [locationName, setLocationName] = useState(DEFAULT_LOCATION);
-
-  const { locations, refetch } = useLocations('');
+  const locationRef = useRef<GooglePlacesAutocompleteRef>(null);
 
   useEffect(() => {
+    // check location permissions
     // TODO: add check for iOS
     PermissionsAndroid.check(
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -96,8 +97,8 @@ const Homepage = ({
           setLocation({
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
-            latitudeDelta: pos.coords.accuracy / 1000,
-            longitudeDelta: pos.coords.accuracy / 1000,
+            latitudeDelta: pos.coords.accuracy / 100000,
+            longitudeDelta: pos.coords.accuracy / 100000,
           }),
         );
       } else {
@@ -117,16 +118,8 @@ const Homepage = ({
     });
   }, []);
 
-  const handleSubmit = async () => {
-    if (locationName !== '' && locationName !== DEFAULT_LOCATION) {
-      refetch(locationName);
-    }
-  };
-
   console.log({
     location,
-    locationName,
-    possibleLocations: locations.length,
   });
 
   return (
@@ -135,29 +128,41 @@ const Homepage = ({
         <MapView
           provider={PROVIDER_GOOGLE}
           style={styles.map}
-          initialRegion={location}
-        />
+          region={location}>
+          <Marker
+            draggable
+            coordinate={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }}
+            onDragEnd={({ nativeEvent: { coordinate } }) => {
+              setLocation(prev => ({ ...prev, ...coordinate }));
+              locationRef.current?.setAddressText(
+                `${coordinate.latitude}, ${coordinate.longitude}`,
+              );
+            }}
+            title="Current Location"
+          />
+        </MapView>
       </View>
       <View style={styles.searchContainer}>
-        <TextInput
-          blurOnSubmit={false}
-          style={styles.textInput}
-          value={locationName}
-          onChangeText={setLocationName}
-          onSubmitEditing={() => handleSubmit()}
-        />
-        <FlatList
-          scrollEnabled
-          style={styles.locationsList}
-          data={locations}
-          renderItem={({ item, separators }) => (
-            <TouchableHighlight
-              key={item.name}
-              onShowUnderlay={separators.highlight}
-              onHideUnderlay={separators.unhighlight}>
-              <Text style={styles.location}>{item.name}</Text>
-            </TouchableHighlight>
-          )}
+        <GooglePlacesAutocomplete
+          ref={locationRef}
+          placeholder="Current Location"
+          query={{
+            key: Config.GOOGLE_PLACES_API_KEY,
+            language: 'en',
+          }}
+          onPress={(data, detail = null) => {
+            if (detail !== null) {
+              setLocation(prev => ({
+                ...prev,
+                longitude: detail.geometry.location.lng,
+                latitude: detail.geometry.location.lat,
+              }));
+            }
+          }}
+          fetchDetails
         />
         <Pressable
           onPress={() =>
@@ -212,22 +217,12 @@ const stylesWithColourMode = (isDarkMode: boolean) =>
       height: 200,
       width: Dimensions.get('window').width - 32,
     },
-    textInput: {
-      height: 40,
-      backgroundColor: '#E5E6FF',
+    button: {
+      backgroundColor: '#5162FA',
+      marginTop: 12,
+      padding: 12,
       borderRadius: 10,
-      paddingLeft: 16,
     },
-    locationsList: {
-      marginTop: 16,
-      marginBottom: 16,
-    },
-    location: {
-      padding: 4,
-      fontSize: 14,
-      color: 'black',
-    },
-    button: { backgroundColor: '#5162FA', padding: 12, borderRadius: 10 },
     buttonText: { color: 'white', fontWeight: '600' },
   });
 

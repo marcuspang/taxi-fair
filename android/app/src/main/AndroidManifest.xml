@@ -12,7 +12,7 @@
     android:theme="@style/AppTheme">
     <meta-data
       android:name="com.google.android.geo.API_KEY"
-      android:value="AIzaSyCwW5ezQtEa9LlfrEwafsJdc9SB8WBFS9Y" />
+      android:value="@string/GOOGLE_MAPS_ANDROID_API_KEY" />
     <activity
       android:name=".MainActivity"
       android:label="@string/app_name"
