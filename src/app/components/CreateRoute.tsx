@@ -102,6 +102,10 @@ export default function CreateRoute({
         fetchDetails
         styles={{ textInput: styles.textInput }}
       />
+      <CustomButton
+        buttonText={'Clear'}
+        onPress={() => fromRef.current?.clear()}
+      />
       <Text>Destination</Text>
       <GooglePlacesAutocomplete
         ref={toRef}
@@ -113,6 +117,10 @@ export default function CreateRoute({
         onPress={updateToCoords}
         fetchDetails
         styles={{ textInput: styles.textInput }}
+      />
+      <CustomButton
+        buttonText={'Clear'}
+        onPress={() => toRef.current?.clear()}
       />
       <View style={styles.buttonContainer}>
         <CustomButton

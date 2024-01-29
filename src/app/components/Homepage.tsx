@@ -95,14 +95,14 @@ const Homepage = ({
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
     ).then(hasPermission => {
       if (hasPermission) {
-        getCurrentGeoposition(pos =>
-          setLocation({
+        getCurrentGeoposition(pos => {
+          return setLocation({
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
             latitudeDelta: pos.coords.accuracy / 100000,
             longitudeDelta: pos.coords.accuracy / 100000,
-          }),
-        );
+          });
+        });
       } else {
         requestForLocationPermission().then(permissionGranted => {
           if (permissionGranted) {
@@ -120,9 +120,9 @@ const Homepage = ({
     });
   }, []);
 
-  console.log({
-    location,
-  });
+  //   console.log({
+  //     location,
+  //   });
 
   return (
     <SafeAreaView style={styles.safeViewContainer}>
@@ -151,6 +151,7 @@ const Homepage = ({
         <GooglePlacesAutocomplete
           ref={locationRef}
           placeholder="Current Location"
+          debounce={500}
           query={{
             key: Config.GOOGLE_PLACES_API_KEY,
             language: 'en',
@@ -166,6 +167,10 @@ const Homepage = ({
           }}
           fetchDetails
           styles={{ textInput: styles.textInput }}
+        />
+        <CustomButton
+          buttonText={'Clear'}
+          onPress={() => locationRef.current?.clear()}
         />
         <CustomButton
           onPress={() =>

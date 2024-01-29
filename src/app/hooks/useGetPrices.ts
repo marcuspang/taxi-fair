@@ -132,6 +132,7 @@ const parsePriceData = (prices: PriceData) => {
           eta: price.eta,
           ett: price.eta,
           link: price.directDeepLink,
+          iconLink: price.iconLink,
           surge:
             price.surgeNotice === 'HIGH_SURGE' ||
             price.surgeNotice === 'FRACTIONAL_SURGE',

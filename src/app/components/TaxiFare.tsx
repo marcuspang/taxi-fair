@@ -1,4 +1,4 @@
-import { Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import {
   EstimatedFare,
   GrabFare,
@@ -12,10 +12,26 @@ interface TaxiFareProps {
 }
 
 const TaxiFare = ({ data }: TaxiFareProps) => {
+  let text, iconSource;
   if (data.service === TaxiServices.GRAB) {
-    return <Text>{(data.fare as GrabFare).minFare}</Text>;
+    text = (data.fare as GrabFare).minFare;
+    iconSource = { uri: data.iconLink };
+  } else {
+    text = (data.fare as EstimatedFare).estimatedFare;
+    console.log(data);
+    // if (data.fare.service === )
+    iconSource = { uri: 'a' };
   }
-  return <Text>{(data.fare as EstimatedFare).estimatedFare}</Text>;
+
+  return (
+    <View style={{ display: 'flex', flexDirection: 'row' }}>
+      <Image
+        style={{ marginRight: 20, width: 50, height: 50 }}
+        source={iconSource}
+      />
+      <Text>{text}</Text>
+    </View>
+  );
 };
 
 export default TaxiFare;
